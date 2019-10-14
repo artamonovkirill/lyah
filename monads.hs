@@ -19,3 +19,12 @@ land f b old
 
 (-:) :: a -> (a->b) -> b
 x -: f = f x  
+
+banana :: Pole -> Maybe Pole  
+banana _ = Nothing
+
+foo :: Maybe String  
+foo = do
+    x <- Just 3
+    y <- Just "!"
+    Just (show x ++ y)
