@@ -1,3 +1,5 @@
+import Control.Monad (guard)
+
 applyMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b 
 applyMaybe Nothing _  = Nothing
 applyMaybe (Just a) f = f a
@@ -23,8 +25,64 @@ x -: f = f x
 banana :: Pole -> Maybe Pole  
 banana _ = Nothing
 
-foo :: Maybe String  
-foo = do
-    x <- Just 3
-    y <- Just "!"
-    Just (show x ++ y)
+foo :: (Num a, Show a) => Maybe a -> Maybe String -> Maybe String  
+foo a b = do
+        x <- a
+        y <- b
+        Just (show x ++ y)
+
+marySue :: (Num a, Ord a) => Maybe a -> Maybe Bool
+marySue a = do
+        x <- a
+        Just (x > 8)
+
+routine :: Maybe Pole  
+routine = 
+        let start = (0,0)
+        in do
+                first <- landRight 2 start
+                Nothing
+                second <- landLeft 2 first
+                landLeft 1 second
+
+justH :: Maybe Char  
+justH = do  
+    (x:xs) <- Just "hello"  
+    return x 
+
+wopwop :: Maybe Char  
+wopwop = do  
+    (x:xs) <- Just ""  
+    return x  
+
+listOfTuples :: [(Int,Char)]  
+listOfTuples = do  
+    n <- [1,2]  
+    ch <- ['a','b']  
+    return (n,ch)  
+
+sevensOnly :: [Int]  
+sevensOnly = do  
+    x <- [1..100]  
+    guard ('7' `elem` show x)  
+    return x
+
+type KnightPos = (Int,Int)  
+
+moveKnight :: KnightPos -> [KnightPos]
+moveKnight (c,r) = do
+        (c',r') <- [(c+2,r-1),(c+2,r+1),(c-2,r-1),(c-2,r+1)  
+               ,(c+1,r-2),(c+1,r+2),(c-1,r-2),(c-1,r+2)  
+               ]
+        guard (c' `elem` [1..8] && r' `elem` [1..8])
+        return (c',r')
+
+in3 :: KnightPos -> [KnightPos]
+-- in3 start = do
+--         first <- moveKnight start
+--         second <- moveKnight first
+--         moveKnight second
+in3 start = moveKnight start >>= moveKnight >>= moveKnight 
+
+canReachIn3 :: KnightPos -> KnightPos -> Bool  
+canReachIn3 start end = end `elem` in3 start  
