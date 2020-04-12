@@ -1,4 +1,4 @@
-import Control.Monad (guard)
+import Control.Monad (guard, filterM)
 
 applyMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b 
 applyMaybe Nothing _  = Nothing
@@ -84,5 +84,19 @@ in3 :: KnightPos -> [KnightPos]
 --         moveKnight second
 in3 start = moveKnight start >>= moveKnight >>= moveKnight 
 
+inMany :: Int -> KnightPos -> [KnightPos]
+inMany n start =  return start >>= foldr (<=<) return (replicate n moveKnight)
+
 canReachIn3 :: KnightPos -> KnightPos -> Bool  
 canReachIn3 start end = end `elem` in3 start  
+
+canReachIn :: Int -> KnightPos -> KnightPos -> Bool  
+canReachIn x start end = end `elem` inMany x start
+
+powerset :: [a] -> [[a]]
+powerset xs = filterM (\_ -> [True, False]) xs
+
+binSmalls :: Int -> Int -> Maybe Int  
+binSmalls acc x  
+    | x > 9     = Nothing  
+    | otherwise = Just (acc + x)

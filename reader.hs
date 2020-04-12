@@ -1,5 +1,5 @@
-import System.Random (StdGen, random)
-import Control.Monad.State (state, State, runState)
+import System.Random (StdGen, random, Random, RandomGen, mkStdGen)
+import Control.Monad.State (state, State, runState, get, put)
 
 -- addStuff :: Int -> Int  
 -- addStuff = do  
@@ -13,12 +13,22 @@ addStuff x = let
     b = (+10) x  
     in a+b  
 
-threeCoins :: StdGen -> (Bool, Bool, Bool)  
-threeCoins gen =   
-    let (firstCoin, newGen) = random gen  
-        (secondCoin, newGen') = random newGen  
-        (thirdCoin, _) = random newGen'  
-    in  (firstCoin, secondCoin, thirdCoin)  
+-- threeCoin    s :: StdGen -> (Bool, Bool, Bool)  
+-- threeCoins gen =   
+--     let (firstCoin, newGen) = random gen  
+--         (secondCoin, newGen') = random newGen  
+--         (thirdCoin, _) = random newGen'  
+--     in  (firstCoin, secondCoin, thirdCoin)  
+
+randomSt :: (RandomGen g, Random a) => State g a  
+randomSt = state random 
+
+threeCoins :: State StdGen (Bool,Bool,Bool)  
+threeCoins = do  
+    a <- randomSt  
+    b <- randomSt  
+    c <- randomSt  
+    return (a,b,c) 
 
 type Stack = [Int]  
   
@@ -39,3 +49,26 @@ stackManip = do
     push 3
     pop
     pop
+
+stackStuff :: State Stack ()  
+stackStuff = do  
+    a <- pop  
+    if a == 5  
+        then push 5  
+        else do  
+            push 3  
+            push 8  
+
+moreStack :: State Stack ()  
+moreStack = do  
+    a <- stackManip  
+    if a == 100  
+        then stackStuff  
+        else return ()             
+
+stackyStack :: State Stack ()  
+stackyStack = do  
+    stackNow <- get  
+    if stackNow == [1,2,3]  
+        then put [8,3,1]  
+        else put [9,2,1]

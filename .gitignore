@@ -1,0 +1,9 @@
+# IDE
+.idea/
+
+# Buildtools
+.stack-work
+
+# Haskell compiled files
+*.hi
+*.o
