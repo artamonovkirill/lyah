@@ -2,6 +2,8 @@
 
 import Data.Ratio((%))
 import Data.Bifunctor (first, second)
+import Control.Monad (replicateM)
+import Data.Map (fromListWith, toList)
 
 newtype Prob a = Prob { getProb :: [(a, Rational)] } deriving Show
 
@@ -41,5 +43,15 @@ flipThree = do
 probability :: ([a] -> Bool) -> Prob [a] -> Rational
 probability f = sum . map snd . filter (f . fst) . getProb
 
+probabilityGroups :: Ord a => Prob a -> Prob a
+probabilityGroups =  Prob . toList . fromListWith (+) . getProb
+
 dice :: Prob Int
 dice = Prob . map (, 1%6) $ [1..6]
+
+specials :: [Int]
+specials = filter (\e -> eq e == gt e) [4..24]
+    where throw = replicateM 4 dice
+          p f e = probability (f e . sum) throw
+          eq = p (==)
+          gt = p (<)
